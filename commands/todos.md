@@ -1,0 +1,190 @@
+# 향상된 TODOs 명령어
+
+## 명령어: `claude todos`
+
+에이전트 오케스트레이션 지원을 통한 포괄적인 이슈 추적.
+
+## 핵심 명령어
+
+### 초기화
+
+```bash
+claude todos --init --project="PROJECT_NAME" --repo="REPO_URL"
+```
+
+### 이슈 추가
+
+```bash
+claude todos --add \
+  --issue="123" \
+  --title="Implement User Authentication" \
+  --branch="feature/auth" \
+  --type="orchestration" \
+  --priority="high"
+```
+
+### 이슈 업데이트
+
+```bash
+claude todos --update \
+  --issue="123" \
+  --phase="integration" \
+  --progress="75" \
+  --agents="backend,frontend,test"
+```
+
+### 하위 작업 추가
+
+```bash
+claude todos --add-subtask \
+  --parent="123" \
+  --id="ST-001" \
+  --agent="backend-specialist" \
+  --task="Implement API endpoints"
+```
+
+### 하위 작업 업데이트
+
+```bash
+claude todos --update-subtask \
+  --parent="123" \
+  --id="ST-001" \
+  --progress="100" \
+  --status="complete"
+```
+
+### 상태 확인
+
+```bash
+claude todos --status [--issue="123"] [--tree]
+```
+
+### 완료
+
+```bash
+claude todos --complete --issue="123" --pr="456"
+```
+
+## 출력 형식 (todos.md)
+markdown# TODOs
+
+> Project: MyProject | Updated: 2024-01-16 14:30:00
+> Active: 4 | Review: 2 | Completed: 5
+
+## 🚀 In Progress
+
+### [#123] Implement User Authentication [ORCHESTRATED]
+
+- **Branch**: `feature/auth`
+- **Priority**: High | **Progress**: 75%
+- **Phase**: Integration
+
+#### Agents (3/5 complete)
+
+- ✅ ST-001: Backend API (backend-specialist)
+- ✅ ST-002: Frontend UI (frontend-specialist)
+- 🔄 ST-003: Testing (test-specialist) - 60%
+- ⏸️ ST-004: Docs (docs-specialist)
+- 🔄 ST-000: Coordination (coord-specialist)
+
+#### Tasks
+
+- [x] Analysis complete
+- [x] Agents assigned
+- [x] Backend implemented
+- [ ] Testing (in progress)
+- [ ] Documentation
+- [ ] Create PR
+
+**Notes**: JWT implementation, integration testing in progress
+
+---
+
+### [#124] Fix Memory Leak
+
+- **Branch**: `fix/memory-leak`
+- **Progress**: 60% | **Assignee**: @dev1
+
+#### Tasks
+
+- [x] Identify source
+- [x] Implement fix
+- [ ] Test solution
+- [ ] Create PR
+
+---
+
+## 🔄 In Review
+
+### [#122] Update Documentation
+
+- **PR**: #456 | **Status**: 1/2 approvals
+- **Submitted**: 2024-01-14
+
+---
+
+## ⏸️ Blocked
+
+### [#125] Payment Integration
+
+- **Blocked**: Waiting for API credentials
+- **Since**: 2024-01-12
+
+---
+
+## ✅ Completed This Week
+
+- ✅ [#121] Database Optimization - PR #455
+- ✅ [#120] Avatar Upload - PR #454
+- ✅ [#119] Login Fix - PR #453
+
+---
+
+## 📋 Up Next
+
+1. [#126] Search Feature - Priority: Medium
+2. [#127] Email Notifications - Priority: Low
+3. [#128] User Preferences - Priority: Medium
+
+## 트리 뷰
+
+```bash
+claude todos --status --tree
+```
+📁 MyProject (4 active, 2 review, 5 completed)
+├── 🚀 In Progress
+│   ├── #123: User Authentication [75%]
+│   │   ├── ✅ Backend API
+│   │   ├── ✅ Frontend UI
+│   │   ├── 🔄 Testing (60%)
+│   │   └── ⏸️ Documentation
+│   └── #124: Memory Leak [60%]
+├── 🔄 In Review
+│   └── #122: Documentation (1/2)
+└── ⏸️ Blocked
+    └── #125: Payment Integration
+```
+
+## 빠른 참조
+
+### 상태 코드
+
+🚀 In Progress
+🔄 In Review
+⏸️ Blocked
+✅ 완료됨
+📋 계획됨
+
+### 우선순위 수준
+
+🔴 긴급
+🟠 높음
+🟡 중간
+🟢 낮음
+
+### 에이전트 상태
+
+✅ 완료
+🔄 작업 중
+⏸️ 대기 중
+❌ 실패
