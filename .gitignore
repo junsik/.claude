@@ -13,3 +13,5 @@
 !plugins/
 !plugins/**
 !settings.json
+!examples/
+!schemas/

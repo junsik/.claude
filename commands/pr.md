@@ -49,6 +49,40 @@ Target Branch: #$TARGET_BRANCH
 
 ## Instructions
 
+0. **prMode 체크 (최우선)**:
+   - 현재 프로젝트에 `.claude/github.json`이 있으면 읽기
+   - **`prMode` 필드 확인**:
+     - `"github"`: GitHub PR 생성 (계속 진행)
+     - `"local"`: **PR 생성 비활성화** → 에러 메시지 출력 후 종료
+
+   **prMode: "local" 일 때 출력할 메시지**:
+   ```
+   ❌ PR 생성 불가: Issues-Only Mode
+
+   현재 워크플로우는 Issues-Only Mode(`prMode: "local"`)입니다.
+   이 모드에서는 GitHub PR을 사용하지 않고 로컬에서 직접 머지합니다.
+
+   **로컬 머지 워크플로우:**
+   1. 로컬 브랜치 작업 완료
+   2. 실제 소스 레포로 푸시 (GitLab/Bitbucket 등)
+   3. 로컬 머지:
+      ```bash
+      git checkout main
+      git merge feat/<issue>-<name> --no-ff
+      git push origin main
+      ```
+   4. GitHub 이슈 수동 닫기:
+      ```bash
+      gh issue close <number> --comment "Merged locally in commit <sha>"
+      ```
+
+   **GitHub PR을 사용하려면:**
+   `/workflow-init`을 실행하여 `prMode`를 `"github"`로 변경하거나,
+   `.claude/github.json`의 `prMode` 필드를 수동으로 `"github"`로 수정하세요.
+   ```
+
+   메시지 출력 후 **즉시 종료** (PR 생성 진행하지 않음)
+
 1. 지정된 경로에서 풀 리퀘스트 템플릿을 먼저 읽기:
    - 템플릿 로드: ~/.claude/templates/GH_PR_TEMPLATE.md
    - 생성하는 모든 하위 이슈에 이 템플릿 구조 사용

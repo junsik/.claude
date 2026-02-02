@@ -163,7 +163,7 @@ payment-integration → security-auditor → 검증된 구현
 3. **Agent selection**은 작업에 따라 자동으로 진행되거나 명시적 호출 가능
 4. **Todo tracking**은 멀티 에이전트 조정을 위해 오케스트레이션 모드 사용
 5. **Templates paths**는 고정:
-   - Parent issues: `~/.claude/templates/GH_PARENT_ISSUE_TEMPLATE.md`
-   - Sub-issues: `~/.claude/templates/GH_SUB_ISSUE_TEMPLATE.md`
-   - Pull requests: `~/.claude/templates/GH_PR_TEMPLATE.md`
-   - User stories: `~/.claude/templates/GH_USER_STORY_TEMPLATE.md`
+   - Parent issues: `./.claude/templates/GH_PARENT_ISSUE_TEMPLATE.md`
+   - Sub-issues: `./.claude/templates/GH_SUB_ISSUE_TEMPLATE.md`
+   - Pull requests: `./.claude/templates/GH_PR_TEMPLATE.md`
+   - User stories: `./.claude/templates/GH_USER_STORY_TEMPLATE.md`

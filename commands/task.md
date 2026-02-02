@@ -20,6 +20,28 @@
 
 ---
 
+## prMode 확인 (최우선)
+
+**MUST CHECK**: `.claude/github.json`의 `prMode` 필드를 먼저 확인:
+
+```bash
+# github.json 읽기
+PRMODE=$(cat .claude/github.json | jq -r '.prMode // "github"')
+```
+
+**prMode별 워크플로우:**
+
+| prMode | Phase 5 | Phase 6 |
+|--------|---------|---------|
+| `"github"` | GitHub PR 생성 | PR 리뷰 및 머지 |
+| `"local"` | 로컬 머지 안내 | 이슈 수동 닫기 |
+
+**Phase 구조 변경:**
+- `prMode: "github"` → Phase 5: "PR 생성", Phase 6: "리뷰 및 완료"
+- `prMode: "local"` → Phase 5: "로컬 머지", Phase 6: "이슈 완료"
+
+---
+
 ### 초기 설정 및 이슈 등록
 
 ```bash
@@ -385,9 +407,13 @@ claude quality report \
   --issue="$ISSUE_NUMBER" \
   --output="quality-report.md" \
   --include-agent-metrics="true"
-## Phase 5: 통합 PR 생성
+## Phase 5: 통합 및 제출
 
 ### TodoWrite: Phase 5 전환
+
+**prMode에 따라 다른 Phase 5 구조 사용:**
+
+#### GitHub Mode (`prMode: "github"`)
 
 ```
 TodoWrite([
@@ -399,8 +425,24 @@ TodoWrite([
 ])
 ```
 
-### 5.1 에이전트 기여 통합
-bash# Collect all agent outputs
+#### Issues-Only Mode (`prMode: "local"`)
+
+```
+TodoWrite([
+  { content: "Phase 1-4", status: "completed", activeForm: "완료" },
+  { content: "Phase 5: 로컬 머지", status: "in_progress", activeForm: "로컬 머지 중" },
+  { content: "5.1 에이전트 결과물 통합", status: "in_progress", activeForm: "결과물 통합 중" },
+  { content: "5.2 소스 레포 푸시 및 로컬 머지", status: "pending", activeForm: "머지 중" },
+  { content: "Phase 6: 이슈 완료", status: "pending", activeForm: "이슈 닫기 중" }
+])
+```
+
+---
+
+### 5.1 에이전트 기여 통합 (공통)
+
+```bash
+# Collect all agent outputs
 claude agent collect-outputs \
   --parent-issue="$ISSUE_NUMBER" \
   --merge-strategy="unified" \
@@ -415,8 +457,16 @@ Co-authored-by: frontend-specialist <frontend@agent>
 Co-authored-by: test-specialist <test@agent>
 Co-authored-by: docs-specialist <docs@agent>
 Coordinated-by: coordination-specialist <coord@agent>"
-5.2 Create Comprehensive PR
-bash# Generate PR with full agent tracking
+```
+
+---
+
+### 5.2 제출 (prMode에 따라 분기)
+
+#### GitHub Mode: PR 생성
+
+```bash
+# Generate PR with full agent tracking
 claude pr create \
   --issue="$ISSUE_NUMBER" \
   --include-agent-reports="true" \
@@ -431,9 +481,53 @@ claude todos --update \
   --pr-number="$PR_NUMBER" \
   --status="in-review" \
   --phase="review"
-## Phase 6: 리뷰 및 완료
+```
+
+#### Issues-Only Mode: 로컬 머지
+
+```bash
+# 실제 소스 레포로 푸시 (GitLab/Bitbucket 등)
+SOURCE_REPO=$(cat .claude/github.json | jq -r '.sourceRepository.url')
+echo "Pushing to source repository: $SOURCE_REPO"
+
+git push origin $BRANCH_NAME
+
+# 로컬 머지 안내 출력
+cat <<EOF
+
+✅ 브랜치 푸시 완료: $BRANCH_NAME
+
+🔀 로컬 머지 워크플로우:
+
+1. **메인 브랜치로 전환**:
+   git checkout main
+   git pull origin main
+
+2. **로컬 머지** (no-ff로 머지 커밋 생성):
+   git merge $BRANCH_NAME --no-ff -m "Merge branch '$BRANCH_NAME'"
+
+3. **소스 레포로 푸시**:
+   git push origin main
+
+4. **이슈 닫기** (Phase 6에서 자동 진행):
+   gh issue close $ISSUE_NUMBER --comment "Merged locally in commit \$(git rev-parse HEAD)"
+
+📌 현재 위치: Phase 5 완료, Phase 6으로 진행합니다.
+EOF
+
+# Update tracking
+claude todos --update \
+  --issue-number="$ISSUE_NUMBER" \
+  --status="local-merged" \
+  --phase="completion"
+```
+## Phase 6: 완료
 
 ### TodoWrite: Phase 6 전환 (최종)
+
+**prMode에 따라 다른 Phase 6 구조 사용:**
+
+#### GitHub Mode (`prMode: "github"`)
 
 ```
 TodoWrite([
@@ -444,8 +538,25 @@ TodoWrite([
 ])
 ```
 
-### 6.1 리뷰 프로세스
-bash# Monitor review progress
+#### Issues-Only Mode (`prMode: "local"`)
+
+```
+TodoWrite([
+  { content: "Phase 1-5", status: "completed", activeForm: "완료" },
+  { content: "Phase 6: 이슈 완료", status: "in_progress", activeForm: "이슈 닫기 중" },
+  { content: "6.1 이슈 닫기", status: "in_progress", activeForm: "이슈 닫는 중" },
+  { content: "6.2 완료 리포트 생성", status: "pending", activeForm: "리포트 생성 중" }
+])
+```
+
+---
+
+### 6.1 완료 프로세스 (prMode에 따라 분기)
+
+#### GitHub Mode: PR 리뷰
+
+```bash
+# Monitor review progress
 gh pr view $PR_NUMBER --json reviews,checks
 
 # Handle review feedback
@@ -453,8 +564,40 @@ claude agent handle-feedback \
   --pr="$PR_NUMBER" \
   --feedback-type="requested-changes" \
   --assign-to-agent="auto"
-6.2 Merge & Complete
-bash# After approval, merge
+```
+
+#### Issues-Only Mode: 이슈 닫기
+
+```bash
+# 커밋 SHA 가져오기
+COMMIT_SHA=$(git rev-parse HEAD)
+
+# GitHub 이슈 자동 닫기
+gh issue close $ISSUE_NUMBER \
+  --comment "✅ Merged locally in commit $COMMIT_SHA
+
+**Branch**: $BRANCH_NAME
+**Completed**: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+**Agent Contributions**:
+- backend-specialist
+- frontend-specialist
+- test-specialist
+- docs-specialist
+
+Merged to main branch in source repository."
+
+echo "✅ Issue #$ISSUE_NUMBER closed successfully"
+```
+
+---
+
+### 6.2 완료 및 리포트 생성 (공통)
+
+#### GitHub Mode: PR 머지 후 완료
+
+```bash
+# After approval, merge
 gh pr merge $PR_NUMBER --squash
 
 # Complete all tracking
@@ -469,6 +612,25 @@ claude task report \
   --issue="$ISSUE_NUMBER" \
   --include-metrics="true" \
   --output="completion-report.md"
+```
+
+#### Issues-Only Mode: 완료 리포트
+
+```bash
+# Complete all tracking
+claude todos --complete \
+  --issue-number="$ISSUE_NUMBER" \
+  --close-subtasks="true" \
+  --generate-report="true"
+
+# Generate completion report
+claude task report \
+  --issue="$ISSUE_NUMBER" \
+  --include-metrics="true" \
+  --output="completion-report.md"
+
+echo "✅ Task completed successfully in Issues-Only Mode"
+```
 Advanced Commands Reference
 Task Orchestration Commands
 bash# Task decomposition

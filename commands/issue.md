@@ -11,9 +11,13 @@ $ARGUMENTS
 
 0. **캐시된 프로젝트 메타데이터 먼저 확인:**
    - 현재 프로젝트에 `.claude/github.json`이 있으면 읽기
+   - **`prMode` 필드 확인**: `"github"` (Full Mode) 또는 `"local"` (Issues-Only Mode)
    - 캐시된 `milestones`, `labels`, `project` 필드 및 `conventions` 사용
    - 반복적인 GitHub API 호출 불필요
    - 캐시가 없거나 오래된 경우 Phase 1 리서치로 대체
+   - **prMode별 동작**:
+     - `prMode: "github"`: Epic/Sub-issue에 PR 링크 섹션 포함
+     - `prMode: "local"`: Epic/Sub-issue에 로컬 브랜치 정보 및 머지 안내 포함
 
 1. 필수 템플릿 먼저 읽기:
    - Parent issue: ~/.claude/templates/GH_PARENT_ISSUE_TEMPLATE.md
@@ -64,6 +68,8 @@ Epic을 Project에 추가할 때 필수 필드:
 
 ### Issue Closing Policy
 
+#### GitHub Full Mode (`prMode: "github"`)
+
 | Issue Type | Closing Method |
 |------------|---------------|
 | **Sub-issue** | PR 본문에 `Closes #번호` → 머지 시 자동 닫힘 |
@@ -73,6 +79,33 @@ Epic을 Project에 추가할 때 필수 필드:
 - 커밋 메시지에 이슈 번호는 권장 (강제 아님)
 - PR 본문에 `Closes #이슈번호` **필수**
 - PR 템플릿 체크리스트로 확인
+
+#### Issues-Only Mode (`prMode: "local"`)
+
+| Issue Type | Closing Method |
+|------------|---------------|
+| **Sub-issue** | 로컬 머지 후 수동: `gh issue close <번호> --comment "Merged locally in commit <sha>"` |
+| **Epic** | 모든 Sub-issue 완료 후 수동: `gh issue close <번호> --reason completed` |
+
+**로컬 머지 워크플로우:**
+```bash
+# 1. 로컬 브랜치 작업
+git checkout -b feat/123-feature-name
+# 작업...
+git commit -m "feat: implement feature"
+
+# 2. 로컬 머지
+git checkout main
+git merge feat/123-feature-name --no-ff
+git push origin main  # 실제 소스 레포 (GitLab/Bitbucket 등)
+
+# 3. 이슈 수동 닫기
+COMMIT_SHA=$(git rev-parse HEAD)
+gh issue close 123 --comment "Merged locally in commit $COMMIT_SHA"
+```
+
+**향후 자동화** (Optional):
+`.git/hooks/post-merge` hook으로 커밋 메시지의 `Closes #123` 파싱하여 자동 닫기 가능
 
 ## TODO List
 
@@ -171,6 +204,32 @@ Epic을 Project에 추가할 때 필수 필드:
 Create the parent issue and all sub-issues following the loaded templates from:
 - `~/.claude/templates/GH_PARENT_ISSUE_TEMPLATE.md`
 - `~/.claude/templates/GH_SUB_ISSUE_TEMPLATE.md`
+
+**IMPORTANT**: 이슈 본문에 `prMode`에 따른 워크플로우 섹션 추가:
+
+### prMode: "github" (Full Mode)
+Epic 및 Sub-issue에 다음 섹션 추가:
+```markdown
+## 📝 Pull Request
+- [ ] PR #xxx
+- [ ] 코드 리뷰 완료
+- [ ] CI/CD 통과
+```
+
+### prMode: "local" (Issues-Only Mode)
+Epic 및 Sub-issue에 다음 섹션 추가:
+```markdown
+## 🔀 로컬 머지
+- 브랜치: `feat/<issue-number>-<feature-name>`
+- 소스 레포: [실제 git remote, 예: GitLab]
+- 머지 완료 후: `gh issue close <number> --comment "Merged locally in commit <sha>"`
+
+**워크플로우:**
+1. 로컬 브랜치 생성 및 작업
+2. 실제 소스 레포로 푸시 (GitLab/Bitbucket 등)
+3. 로컬 머지 (예: `git merge --no-ff`)
+4. GitHub 이슈 수동 닫기
+```
 
 ### Epic 생성 (Milestone + Project 연결)
 
