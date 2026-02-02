@@ -1,13 +1,12 @@
 # Claude Code 설정
 
-83개 이상의 특화된 AI 에이전트, 커스텀 스킬, 슬래시 명령, GitHub 워크플로우 자동화, 멀티 에이전트 오케스트레이션 패턴을 포함한 개인 Claude Code 설정 디렉토리입니다.
+36개의 특화된 AI 에이전트, 슬래시 명령, GitHub 워크플로우 자동화, 멀티 에이전트 오케스트레이션 패턴을 포함한 개인 Claude Code 설정 디렉토리입니다.
 
 ## 목차
 
 - [개요](#개요)
 - [기능](#기능)
   - [특화된 AI 에이전트](#-특화된-ai-에이전트)
-  - [커스텀 스킬](#-커스텀-스킬)
   - [슬래시 명령](#-슬래시-명령)
   - [멀티 에이전트 오케스트레이션](#-멀티-에이전트-오케스트레이션-패턴)
   - [일반적인 워크플로우 패턴](#-일반적인-워크플로우-패턴)
@@ -18,9 +17,6 @@
 - [명령 예시](#명령-예시)
   - [GitHub 워크플로우](#github-워크플로우-명령)
   - [리서치 및 콘텐츠](#리서치--콘텐츠-명령)
-- [스킬 가이드](#스킬-가이드)
-  - [Claude Code 커스터마이징](#claude-code-커스터마이징-스킬)
-  - [도메인 전문성](#도메인-전문성-스킬)
 - [에이전트 선택 가이드](#에이전트-선택-가이드)
 - [모범 사례](#모범-사례)
 - [리소스](#리소스)
@@ -28,11 +24,10 @@
 ## 개요
 
 이 저장소는 Claude Code를 다음과 같이 확장합니다:
-- **83개 이상의 특화된 AI 에이전트**: 도메인별 전문성을 위한 Haiku/Sonnet/Opus 모델 계층
-- **10개 커스텀 스킬**: 특화 작업용 (재무 분석, WebGL 개발, Claude Code 커스터마이징)
-- **9개 슬래시 명령**: GitHub 워크플로우, 리서치 자동화, 콘텐츠 생성용
+- **36개의 특화된 AI 에이전트**: 도메인별 전문성을 위한 Haiku/Sonnet/Opus 모델 계층
+- **7개 슬래시 명령**: GitHub 워크플로우, 리서치 자동화, 콘텐츠 생성용
 - **멀티 에이전트 오케스트레이션**: 복잡한 개발 워크플로우를 위한 패턴
-- **세션 지속성**: 프로젝트 및 쉘 환경 전반에 걸친 유지
+- **GitHub 템플릿**: 이슈, PR, 사용자 스토리 템플릿
 
 ## 기능
 
@@ -53,21 +48,6 @@
 - 에이전트 오케스트레이션 패턴
 - 사용 예시 및 모범 사례
 
-### 🎯 커스텀 스킬
-
-도메인별 작업 및 Claude Code 커스터마이징을 위한 특화 스킬:
-
-#### Claude Code 커스터마이징
-- **`create-skill`** - 적절한 YAML 프론트매터와 지원 파일로 구조화된 Claude Code 스킬 생성
-- **`create-subagent`** - 집중된 설명과 시스템 프롬프트로 특화된 서브에이전트 구축
-- **`create-command`** - 인자 처리 및 설정으로 커스텀 슬래시 명령 설계
-- **`create-hooks`** - 자동화 및 워크플로우 향상을 위한 이벤트 기반 훅 설정
-- **`create-claude-plugin`** - 스킬, 에이전트, 명령을 배포 가능한 플러그인으로 패키징
-- **`connect-mcp-server`** - HTTP/stdio/SSE 트랜스포트로 MCP(Model Context Protocol) 서버 통합
-
-#### 도메인 전문성
-- TODO: 나중에 추가
-
 ### 💬 슬래시 명령
 
 자동화 및 워크플로우를 위한 명령 템플릿:
@@ -80,6 +60,7 @@
 | `/todos` | 내부 | 고급 할일 추적 (Claude Code 내부 사용, 직접 호출 아님) | 내부 사용 전용 |
 | `/pr` | GitHub | 템플릿 감지 및 컨벤션 분석이 포함된 포괄적 풀 리퀘스트 생성 | `/pr` (현재 브랜치 분석) |
 | `/prompt` | 콘텐츠 | 고급 프롬프트 엔지니어링 기법으로 효과적인 프롬프트 생성 | `/prompt task="API 문서 생성" format="markdown"` |
+| `/gh-sync` | GitHub | GitHub 메타데이터 동기화 (마일스톤, 프로젝트, 라벨 등) | `/gh-sync` |
 
 #### 명령 상세
 
@@ -464,54 +445,31 @@ claude todos --status [--tree]
 .claude/
 ├── CLAUDE.md              # Claude Code를 위한 저장소 가이드
 ├── README.md              # 이 파일
-├── settings.json          # Claude Code 설정
-├── .gitignore            # Git 설정
+├── settings.local.json    # Claude Code 설정
+├── .gitignore             # Git 설정
+├── github.json            # GitHub 메타데이터 캐시
 │
-├── commands/             # 슬래시 명령 템플릿 (9개 명령)
-│   ├── README.md         # 명령 문서
-│   ├── issue.md          # 다단계 이슈 생성 워크플로우
-│   ├── pr.md             # 포괄적 PR 생성 워크플로우
-│   ├── user-story.md     # Gherkin 문법의 BDD 사용자 스토리
-│   ├── todos.md          # 오케스트레이션 포함 할일 추적
-│   ├── nlm-research.md   # NotebookLM 리서치 자동화
-│   ├── prompt.md         # 프롬프트 엔지니어링 어시스턴트
-│   ├── youtube-tech.md    # 틱톡 테크 콘텐츠 생성
-│   └── task.md           # 작업 관리 워크플로우
+├── commands/              # 슬래시 명령 템플릿 (7개 명령)
+│   ├── README.md          # 명령 문서
+│   ├── gh-sync.md         # GitHub 메타데이터 동기화
+│   ├── issue.md           # 다단계 이슈 생성 워크플로우
+│   ├── pr.md              # 포괄적 PR 생성 워크플로우
+│   ├── user-story.md      # Gherkin 문법의 BDD 사용자 스토리
+│   ├── task.md            # 작업 관리 워크플로우
+│   ├── todos.md           # 오케스트레이션 포함 할일 추적
+│   └── prompt.md          # 프롬프트 엔지니어링 어시스턴트
 │
-├── skills/              # 커스텀 스킬 (10개)
-│   ├── Claude Code Customization/
-│   │   ├── create-skill/           # 스킬 생성 워크플로우
-│   │   ├── create-subagent/        # 서브에이전트 빌더
-│   │   ├── create-command/         # 명령 생성기
-│   │   ├── create-hooks/           # 훅 설정기
-│   │   ├── create-claude-plugin/   # 플러그인 패키저
-│   │   └── connect-mcp-server/     # MCP 통합
-│   │
-│   └── Domain Expertise/
-│       ├── analyzing-financial-statements/  # 재무 비율
-│       └── creating-financial-models/       # DCF 및 밸류에이션
-│
-├── agents/              # 특화 AI 서브에이전트 (83개 이상)
-│   ├── README.md        # 에이전트 문서 및 사용 가이드
+├── agents/                # 특화 AI 서브에이전트 (36개)
 │   ├── [language]-pro.md    # 언어별 에이전트
-│   ├── [domain]-[role].md   # 도메인별 전문가
-│   └── examples/        # 사용 예시 및 패턴
+│   └── [domain]-[role].md   # 도메인별 전문가
 │
-├── templates/           # GitHub 템플릿
-│   ├── GH_PR_TEMPLATE.md         # 표준 PR 템플릿
-│   ├── GH_PARENT_ISSUE_TEMPLATE.md  # 상위 이슈/에픽
-│   ├── GH_SUB_ISSUE_TEMPLATE.md  # 하위 이슈 템플릿
-│   └── GH_USER_STORY_TEMPLATE.md # BDD 사용자 스토리 템플릿
-│
-├── projects/            # 세션 히스토리 (.jsonl)
-├── shell-snapshots/     # 쉘 세션 지속성
-├── todos/              # 작업 추적 파일 (.json)
-├── statsig/            # 분석 캐시
-├── plugins/            # Claude Code 플러그인
-│   ├── installed_plugins.json
-│   ├── known_marketplaces.json
-│   └── marketplaces/
-└── ide/                # IDE 통합
+└── templates/             # GitHub 템플릿
+    ├── README.md
+    ├── CLAUDE.md
+    ├── GH_PR_TEMPLATE.md         # 표준 PR 템플릿
+    ├── GH_PARENT_ISSUE_TEMPLATE.md  # 상위 이슈/에픽
+    ├── GH_SUB_ISSUE_TEMPLATE.md     # 하위 이슈 템플릿
+    └── GH_USER_STORY_TEMPLATE.md    # BDD 사용자 스토리 템플릿
 ```
 
 ## 빠른 시작
@@ -547,35 +505,6 @@ Claude Code 사용 시 설정이 자동으로 로드됩니다.
 "performance-engineer에게 이 병목 프로파일링 요청"
 ```
 
-#### 커스텀 스킬 사용
-
-스킬은 특화 도메인 전문성 및 작업 자동화를 제공합니다:
-
-```bash
-# Claude Code 커스터마이징
-"GraphQL 스키마 생성을 위한 새 스킬 생성"
-→ create-skill 워크플로우 사용
-
-"API 문서화를 위한 서브에이전트 구축"
-→ create-subagent 워크플로우 사용
-
-"테스트 픽스처 생성을 위한 명령 추가"
-→ create-command 워크플로우 사용
-
-# 도메인 전문성
-"이 대차대조표 분석하고 주요 비율 계산"
-→ analyzing-financial-statements 스킬 사용
-
-"이 회사를 위한 DCF 모델 구축"
-→ creating-financial-models 스킬 사용
-
-"이 3D 장면을 위한 WebGL 셰이더 설정 도움"
-→ webgl-expert 스킬 사용
-
-"보안 API 설계에 대한 정보 검색"
-→ secure-web-search 스킬 사용
-```
-
 #### 슬래시 명령 사용
 
 명령은 워크플로우 및 템플릿에 빠른 접근을 제공합니다:
@@ -591,22 +520,19 @@ Claude Code 사용 시 설정이 자동으로 로드됩니다.
 /user-story
 → Gherkin 시나리오가 포함된 BDD 사용자 스토리 생성
 
-/todos --init --project="MyApp"
-→ 할일 추적 초기화
+/gh-sync
+→ GitHub 메타데이터 동기화 (마일스톤, 프로젝트, 라벨)
 
-# 리서치 및 콘텐츠
-/nlm-research project="시장 분석" type="competitive-intel"
-→ NotebookLM 리서치 리포트 생성
-
+# 콘텐츠 생성
 /prompt task="API 문서 생성" format="markdown"
 → 엔지니어링 기법으로 최적화된 프롬프트 생성
 
-/youtube-tech "2025년 최신 AI 동향"
-→ 테크 뉴스용 틱톡 스크립트 생성
-
-# 유틸리티
+# 작업 관리
 /task
 → 작업 관리 및 조정
+
+/todos --init --project="MyApp"
+→ 할일 추적 초기화
 ```
 
 #### GitHub 워크플로우 (상세)
@@ -766,240 +692,6 @@ Claude Code 사용 시 설정이 자동으로 로드됩니다.
 - 예시 및 제약사항 포함
 - 평가 기준 추가
 
-## 스킬 가이드
-
-스킬은 특화 도메인 전문성 및 자동화 워크플로우를 제공합니다. 에이전트와 달리, 스킬은 대화형으로 호출되며 깊고 집중된 기능을 제공합니다.
-
-### Claude Code 커스터마이징 스킬
-
-#### `create-skill` - 스킬 생성 워크플로우
-
-**사용 시기:**
-- Claude Code를 위한 새 커스텀 스킬 생성
-- Claude Code 기능 확장
-- 재사용 가능한 스킬 템플릿 구축
-
-**사용 예시:**
-```
-"GraphQL 스키마 생성을 위한 새 스킬 생성"
-```
-
-**동작:**
-1. 스킬 구조 및 YAML 프론트매터 안내
-2. 스킬 설명 및 사용 사례 정의 지원
-3. 지원 파일 생성 (예시, 템플릿, 참고 문서)
-4. 적절한 스킬 문서화 보장
-5. 스킬 형식 검증
-
-**출력:**
-- `skills/[name]/SKILL.md` - 프론트매터가 포함된 메인 스킬 파일
-- `skills/[name]/examples/` - 사용 예시
-- `skills/[name]/reference.md` - 참고 문서
-
-#### `create-subagent` - 서브에이전트 빌더
-
-**사용 시기:**
-- 특화 AI 에이전트 구축
-- 커스텀 에이전트 페르소나 생성
-- 에이전트 도구 접근 및 동작 정의
-
-**사용 예시:**
-```
-"GraphQL API 테스팅에 특화된 서브에이전트 구축"
-```
-
-**동작:**
-1. 에이전트 설명 및 트리거 조건 정의
-2. 시스템 프롬프트 및 지침 생성
-3. 도구 접근 설정 (Read, Write, Bash 등)
-4. 모델 계층 설정 (Haiku/Sonnet/Opus)
-5. 사용 패턴 문서화
-
-**출력:**
-- 완전한 설정이 포함된 에이전트 YAML 파일
-- 사용 예시 및 호출 패턴
-
-#### `create-command` - 명령 생성기
-
-**사용 시기:**
-- 커스텀 슬래시 명령 생성
-- 재사용 가능한 프롬프트 템플릿 구축
-- 반복 워크플로우 자동화
-
-**사용 예시:**
-```
-"JSON 스키마에서 테스트 픽스처 생성을 위한 명령 추가"
-```
-
-**동작:**
-1. 프론트매터가 포함된 명령 구조 정의
-2. 명령 인자 및 검증 설정
-3. 명령 워크플로우 및 단계 생성
-4. 사용법 및 예시 문서화
-5. 인자 처리 설정
-
-**출력:**
-- `commands/[name].md` - 인자 및 워크플로우가 포함된 명령 파일
-
-#### `create-hooks` - 훅 설정기
-
-**사용 시기:**
-- 이벤트 트리거로 워크플로우 자동화
-- 도구 실행 전/후 로직 추가
-- 커스텀 검증 또는 포맷팅 구현
-
-**사용 예시:**
-```
-"파일 작성 전 prettier를 실행하는 훅 생성"
-```
-
-**동작:**
-1. 훅 유형 설명 (도구 전/후 훅)
-2. 훅 설정 안내
-3. 쉘 명령 로직 구현
-4. 이벤트 처리 설정
-5. 보안 관행 문서화
-
-**출력:**
-- 설정의 훅 구성
-- 쉘 명령 구현
-- 이벤트 핸들러 설정
-
-#### `create-claude-plugin` - 플러그인 패키저
-
-**사용 시기:**
-- 스킬 및 에이전트 배포
-- 플러그인 마켓플레이스 생성
-- 완전한 솔루션 패키징
-
-**사용 예시:**
-```
-"내 GraphQL 스킬과 에이전트를 플러그인으로 패키징"
-```
-
-**동작:**
-1. 플러그인 디렉토리 구조화
-2. marketplace.json 매니페스트 생성
-3. 스킬, 에이전트, 명령 번들링
-4. 설치 및 사용법 문서화
-5. 배포 준비
-
-**출력:**
-- 완전한 플러그인 패키지
-- 메타데이터가 포함된 marketplace.json
-- 설치 지침
-
-#### `connect-mcp-server` - MCP 통합
-
-**사용 시기:**
-- 외부 서비스를 Claude Code에 연결
-- MCP 서버 통합 추가
-- 인증 및 트랜스포트 설정
-
-**사용 예시:**
-```
-"stdio 트랜스포트로 GitHub MCP 서버 연결"
-```
-
-**동작:**
-1. MCP 트랜스포트 유형 설명 (HTTP, stdio, SSE)
-2. 서버 설치 안내
-3. settings.json 설정
-4. 인증 및 환경 변수 설정
-5. 연결 및 사용 가능한 도구 테스트
-
-**출력:**
-- MCP 설정이 포함된 업데이트된 settings.json
-- 환경 변수 설정
-- 연결 검증
-
-### 도메인 전문성 스킬
-
-#### `analyzing-financial-statements` - 재무 비율 분석
-
-**사용 시기:**
-- 회사 성과 평가
-- 투자 분석
-- 재무 실사
-- 회사 비교
-
-**사용 예시:**
-```
-"이 대차대조표 분석하고 유동성 비율 계산"
-```
-
-**기능:**
-- **수익성**: ROE, ROA, 매출총이익/영업이익/순이익 마진
-- **유동성**: 유동비율, 당좌비율, 현금비율
-- **레버리지**: 부채비율, 이자보상배율
-- **효율성**: 자산/재고/매출채권 회전율
-- **밸류에이션**: P/E, P/B, P/S, EV/EBITDA, PEG
-- **주당**: EPS, 주당순자산가치, 주당배당금
-
-**입력 형식:**
-- 재무 항목이 포함된 CSV
-- JSON 구조화된 재무제표
-- 수치 텍스트 설명
-- Excel 재무제표
-
-**출력:**
-- 해석이 포함된 계산된 비율
-- 산업 벤치마크
-- 트렌드 분석
-- 투자 인사이트
-
-#### `creating-financial-models` - DCF 및 밸류에이션
-
-**사용 시기:**
-- 밸류에이션 모델 구축
-- 투자 결정 분석
-- 시나리오 기획
-- 리스크 평가
-
-**사용 예시:**
-```
-"이 회사를 위한 민감도 분석이 포함된 DCF 모델 구축"
-```
-
-**기능:**
-1. **DCF 분석**
-   - 다중 시나리오 현금흐름 예측
-   - 터미널 가치 계산 (영구성장/Exit Multiple)
-   - WACC 결정
-   - 기업가치 및 주주가치 평가
-
-2. **민감도 분석**
-   - 핵심 가정 영향 테스트
-   - 다변수 데이터 테이블
-   - 토네이도 차트
-   - 가치 동인 식별
-
-3. **몬테카를로 시뮬레이션**
-   - 수천 개의 확률적 시나리오
-   - 불확실성 모델링
-   - 신뢰구간 생성
-   - 목표 달성 확률
-
-4. **시나리오 기획**
-   - 최선/기본/최악 케이스 모델링
-   - 경제 환경 테스트
-   - 전략적 대안 비교
-   - 결과 확률 분포
-
-**입력 요구사항:**
-- 과거 재무제표 (3-5년)
-- 성장 가정
-- 자본구조
-- 시장 데이터 (무위험이자율, 베타, 시장리스크프리미엄)
-- 산업 벤치마크
-
-**출력:**
-- 완전한 밸류에이션 모델
-- 민감도 테이블 및 차트
-- 분포가 포함된 시뮬레이션 결과
-- 시나리오 비교
-- 투자 권고
-
 ## 에이전트 선택 가이드
 
 ### 작업 유형별
@@ -1060,16 +752,9 @@ description: 귀하의 워크플로우 설명
    5. code-reviewer (최종 검증)
 ```
 
-### 세션 지속성
-
-모든 세션이 Claude Code 호출 간에 지속됩니다:
-- **프로젝트 컨텍스트**: `projects/[project-path].jsonl`에 저장
-- **쉘 히스토리**: `shell-snapshots/[session-id]`에 저장
-- **할일 상태**: `todos/[project-id].json`에서 추적
-
 ## 설정
 
-### 설정 (`settings.json`)
+### 설정 (`settings.local.json`)
 
 ```json
 {
@@ -1083,7 +768,7 @@ description: 귀하의 워크플로우 설명
 
 `.gitignore`는 다음과 같이 설정됩니다:
 - **추적**: `commands/`, `agents/`, `templates/`, `README.md`, `CLAUDE.md`
-- **무시**: `projects/`, `shell-snapshots/`, `todos/`, `statsig/`, `ide/`, 세션 데이터
+- **무시**: `settings.local.json`, `github.json`, 세션 데이터
 
 공유 설정 및 템플릿만 버전 관리됩니다.
 
@@ -1129,7 +814,6 @@ description: 귀하의 워크플로우 설명
 ### 할일 추적 문제
 - 사용 전 `claude todos --init`로 초기화
 - 프로젝트 컨텍스트가 올바르게 설정되었는지 확인
-- 상태 파일은 `todos/` 디렉토리 확인
 
 ## 기여
 
