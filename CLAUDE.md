@@ -16,13 +16,13 @@ GitHub 작업을 위한 정교한 프롬프트 템플릿:
   - 저장소 컨벤션 및 기존 템플릿 분석
   - 복잡한 기능을 배정 가능한 하위 작업으로 분해
   - 의존성 그래프 및 통합 지점 생성
-  - Template path: `~/.claude/templates/GH_SUB_ISSUE_TEMPLATE.md`
+  - Template path: `./.claude/templates/GH_SUB_ISSUE_TEMPLATE.md`
 
 - **`pr.md`**: 포괄적인 풀 리퀘스트 생성 워크플로우
   - 기존 PR 템플릿 감지 및 사용 (`.github/pull_request_template.md`)
   - 최근 PR 분석을 통한 컨벤션 파악 (title format, labels, merge strategy)
   - 변경 분류 및 리스크 평가 수행
-  - Template path: `~/.claude/templates/GH_PR_TEMPLATE.md`
+  - Template path: `./.claude/templates/GH_PR_TEMPLATE.md`
 
 - **`todos.md`**: 에이전트 오케스트레이션이 포함된 고급 할일 추적
   - 멀티 에이전트 워크플로우 오케스트레이션 지원
@@ -78,11 +78,11 @@ GitHub 전용 템플릿:
 `commands/issue.md` 워크플로우 사용:
 
 1. 템플릿 읽기:
-   - Parent issue: `~/.claude/templates/GH_PARENT_ISSUE_TEMPLATE.md`
-   - Sub-issues: `~/.claude/templates/GH_SUB_ISSUE_TEMPLATE.md`
+   - Parent issue: `./.claude/templates/GH_PARENT_ISSUE_TEMPLATE.md`
+   - Sub-issues: `./.claude/templates/GH_SUB_ISSUE_TEMPLATE.md`
 2. 저장소 컨벤션 분석 (CONTRIBUTING.md, 기존 이슈)
 3. **Claude Code 스킬 및 도구 식별**:
-   - `~/.claude/skills/`에서 도메인 전문성을 위한 사용 가능한 스킬 검토
+   - `./.claude/skills/`에서 도메인 전문성을 위한 사용 가능한 스킬 검토
    - 기존 스킬 적용 가능 여부 판단 (독립형 또는 에이전트와 함께)
    - 고도로 기술적/도메인 특화 작업을 위한 새 커스텀 스킬 생성 권장
    - 고품질 특화 출력을 위해 하위 이슈에 스킬 매핑
@@ -100,7 +100,7 @@ GitHub 전용 템플릿:
 
 `commands/pr.md` 워크플로우 사용:
 
-1. `~/.claude/templates/GH_PR_TEMPLATE.md`에서 템플릿 읽기
+1. `./.claude/templates/GH_PR_TEMPLATE.md`에서 템플릿 읽기
 2. 기존 PR 템플릿 확인 (`.github/pull_request_template.md`)
 3. 최근 10-20개 PR 분석하여 제목 형식 및 컨벤션 파악
 4. 변경 유형(feature/bugfix/refactor 등) 및 영향 수준 분류
